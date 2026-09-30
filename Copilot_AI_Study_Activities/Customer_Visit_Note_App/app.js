@@ -1,10 +1,12 @@
 const STORAGE_KEY = 'customer-visit-note-app-v1';
 const form = document.querySelector('#note-form');
 const aliasInput = document.querySelector('#alias-input');
+const visitorInput = document.querySelector('#visitor-input');
 const dateInput = document.querySelector('#date-input');
 const notesInput = document.querySelector('#notes-input');
 const resultList = document.querySelector('#result-list');
 const resultCount = document.querySelector('#result-count');
+const exportButton = document.querySelector('#export-button');
 const formStatus = document.querySelector('#form-status');
 
 let records = [];
@@ -65,6 +67,15 @@ function createNoteCard(record) {
   date.textContent = formatDate(record.date);
   top.append(title, date);
 
+  if (record.visitorName) {
+    const visitor = document.createElement('p');
+    visitor.className = 'note-visitor';
+    visitor.textContent = `방문자: ${record.visitorName}`;
+    card.append(top, visitor);
+  } else {
+    card.append(top);
+  }
+
   const notes = document.createElement('p');
   notes.textContent = record.notes || '작성된 미팅 노트가 없습니다.';
 
@@ -72,12 +83,42 @@ function createNoteCard(record) {
   meta.className = 'note-meta';
   meta.textContent = `저장 ${new Intl.DateTimeFormat('ko-KR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(record.savedAt))}`;
 
-  card.append(top, notes, meta);
+  card.append(notes, meta);
   return card;
+}
+
+function csvCell(value) {
+  const text = String(value ?? '');
+  const safeText = /^[\t\r ]*[=+\-@]/.test(text) ? `'${text}` : text;
+  return `"${safeText.replaceAll('"', '""')}"`;
+}
+
+function exportRecords() {
+  if (records.length === 0) return;
+
+  const rows = [
+    ['고객사명', '방문자명', '방문일', '미팅 노트', '저장 시각'],
+    ...records.map((record) => [
+      record.alias,
+      record.visitorName || '',
+      record.date,
+      record.notes,
+      record.savedAt ? new Intl.DateTimeFormat('ko-KR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(record.savedAt)) : '',
+    ]),
+  ];
+  const csv = `\uFEFF${rows.map((row) => row.map(csvCell).join(',')).join('\r\n')}`;
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `customer-visit-notes-${new Date().toISOString().slice(0, 10)}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 function renderRecords() {
   resultCount.textContent = String(records.length);
+  exportButton.disabled = records.length === 0;
   resultList.replaceChildren();
 
   if (records.length === 0) {
@@ -99,6 +140,8 @@ function renderRecords() {
   for (const record of records) resultList.append(createNoteCard(record));
 }
 
+exportButton.addEventListener('click', exportRecords);
+
 document.querySelector('#clear-button').addEventListener('click', () => {
   form.reset();
   formStatus.textContent = '입력 내용을 지웠습니다. 저장된 기록은 유지됩니다.';
@@ -112,6 +155,7 @@ form.addEventListener('submit', (event) => {
   const record = {
     id: globalThis.crypto?.randomUUID?.() ?? `note-${Date.now()}`,
     alias: aliasInput.value.trim(),
+    visitorName: visitorInput.value.trim(),
     date: dateInput.value,
     notes: notesInput.value.trim(),
     savedAt: new Date().toISOString(),

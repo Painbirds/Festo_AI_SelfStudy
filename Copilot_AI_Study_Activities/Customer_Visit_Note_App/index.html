@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f3f1eb">
+  <meta name="theme-color" content="#091522">
   <title>Customer Visit Note</title>
   <link rel="stylesheet" href="styles.css">
   <script src="app.js" defer></script>
@@ -20,7 +20,7 @@
 
     <section class="intro" id="top" aria-labelledby="page-title">
       <p class="eyebrow">CUSTOMER RELATIONS <span>·</span> VISIT LOG</p>
-      <h1 id="page-title">Customer<br><em>Visit Note</em></h1>
+      <h1 id="page-title">Customer Visit Note</h1>
       <p class="intro-copy">현장에서 나눈 대화와 다음 기회를 간결하게 기록하세요.</p>
     </section>
 
@@ -38,6 +38,11 @@
           <label class="field" for="alias-input">
             <span>Customer Alias <i>*</i></span>
             <input id="alias-input" name="alias" type="text" placeholder="예: 고객사 A" maxlength="80" required autocomplete="off">
+          </label>
+
+          <label class="field" for="visitor-input">
+            <span>Visitor Name</span>
+            <input id="visitor-input" name="visitor" type="text" placeholder="예: 홍길동" maxlength="80" autocomplete="name">
           </label>
 
           <label class="field" for="date-input">
@@ -68,7 +73,10 @@
               <h2 id="results-heading">저장된 방문 기록</h2>
             </div>
           </div>
-          <span class="result-count" id="result-count">0</span>
+          <div class="results-tools">
+            <button class="button button-quiet export-button" id="export-button" type="button" disabled>Excel용 CSV 다운로드 <span aria-hidden="true">↓</span></button>
+            <span class="result-count" id="result-count">0</span>
+          </div>
         </div>
         <div class="result-list" id="result-list" aria-live="polite"></div>
         <p class="privacy-footnote"><span aria-hidden="true">●</span> 기록은 이 기기의 브라우저에만 보관됩니다.</p>
