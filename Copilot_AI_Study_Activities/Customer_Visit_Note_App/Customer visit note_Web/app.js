@@ -27,7 +27,7 @@ function loadRecords() {
     ));
   } catch {
     storageReady = false;
-    formStatus.textContent = '저장된 기록을 읽을 수 없습니다. 기존 데이터는 변경하지 않았습니다.';
+    formStatus.textContent = '저장된 기록을 읽을 수 없습니다.';
     return [];
   }
 }
